@@ -1,4 +1,4 @@
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 
 const labSchema = new mongoose.Schema(
   {
@@ -40,7 +40,7 @@ const labSchema = new mongoose.Schema(
           'urine_test',
           'other',
         ],
-        message: `{VALUE} is not defined`,
+        message: '{VALUE} is not defined',
       },
       trim: true,
     },
@@ -129,8 +129,8 @@ const labSchema = new mongoose.Schema(
 );
 
 (labSchema.index({ bookingId: 1 }),
-  labSchema.index({ patientId: 1, date: 1 }),
-  labSchema.index({ labId: 1, date: 1 }));
+labSchema.index({ patientId: 1, date: 1 }),
+labSchema.index({ labId: 1, date: 1 }));
 
 labSchema.pre('save', async function (next) {
   try {

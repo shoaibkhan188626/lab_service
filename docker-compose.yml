@@ -1,7 +1,10 @@
 version: '3.8'
 services:
   lab-service:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lab-service
     ports:
       - '8085:8085'
     environment:
@@ -14,6 +17,7 @@ services:
       - USER_SERVICE_URL=http://user-service:5000
       - APPOINTMENT_SERVICE_URL=http://appointment-service:8083
       - NOTIFICATION_SERVICE_URL=http://notification-service:8081
+      - API_GATEWAY_URL=http://api-gateway:8080
       - LOG_LEVEL=info
       - PROMETHEUS_URL=http://prometheus:9090
       - GRAFANA_URL=http://grafana:3000
@@ -24,16 +28,44 @@ services:
     depends_on:
       - mongo
       - rabbitmq
+      - prometheus
+    networks:
+      - healthcare-net
   mongo:
     image: mongo:6
+    container_name: mongo
     ports:
       - '27017:27017'
     volumes:
       - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=lab-service
+    networks:
+      - healthcare-net
   rabbitmq:
     image: rabbitmq:3-management
+    container_name: rabbitmq
     ports:
       - '5672:5672'
       - '15672:15672'
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - healthcare-net
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - healthcare-net
 volumes:
   mongo-data:
+  rabbitmq-data:
+  prometheus-data:
+networks:
+  healthcare-net:
+    driver: bridge
