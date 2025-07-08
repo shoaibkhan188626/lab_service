@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  lab-service:
+    build: .
+    ports:
+      - '8085:8085'
+    environment:
+      - NODE_ENV=development
+      - PORT=8085
+      - MONGO_URI_LOCAL=mongodb://mongo:27017/lab-service
+      - MONGO_URI=mongodb+srv://<user>:<pass>@cluster0.mongodb.net/lab-service?retryWrites=true&w=majority
+      - JWT_SECRET=Xy9vA$23k!ZbLp@76JrQmEwTn$HsDfGuIoPaLzXcVbNmQwErTyUiOp1234567890
+      - SERVICE_KEY=a7b9c2d8e4f0g1h2i3j4k5l6m7n8o9p0q1r2s3t4
+      - USER_SERVICE_URL=http://user-service:5000
+      - APPOINTMENT_SERVICE_URL=http://appointment-service:8083
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8081
+      - LOG_LEVEL=info
+      - PROMETHEUS_URL=http://prometheus:9090
+      - GRAFANA_URL=http://grafana:3000
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+      - rabbitmq
+  mongo:
+    image: mongo:6
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+volumes:
+  mongo-data:
